@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1><b>Todo</b></h1>
+    <form onsubmit="adding(event)">
+        <input type="text" name="todo" id="">
+        <input type="submit" value="add">
+    </form>
+
+    <ol id="list"></ol>
+
+    <script>
+        let list = document.getElementById("list")
+
+let adding = (event) =>{
+    event.preventDefault();
+    let formdata = new FormData(event.target)
+    let todo = formdata.get("todo")
+    fetch(`http://localhost:3000/api`,{
+        method:"post",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({todo:todo})
+    })
+    .then(res => res.json())
+    .then(data => {
+        print();
+        console.log(data)
+    })
+}
+
+let print = () =>{
+    fetch(`http://localhost:3000/api`,{
+        method:"get",
+    })
+    .then(res => res.json())
+    .then(data => {
+        list.innerHTML = null;
+        data.forEach((item,index)=>{
+            let li = `<li>${item.todo} <button onclick="del(${index})">Delet</button> <button onclick="edit(${index})">Edit</button></li>`;
+            list.innerHTML += li;
+        })
+    })
+}
+
+let del = (index)=>{
+    fetch(`http://localhost:3000/api`,{
+        method:"delete",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({id:index})
+    })
+    .then(res => res.json())
+    .then(data => {
+        print();
+        console.log(data)
+    })
+}
+
+let edit = (index)=>{
+    let new_data = prompt("enter new data")
+    fetch(`http://localhost:3000/api`,{
+        method:"put",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({id:index,edit_data:new_data})
+    })
+    .then(res => res.json())
+    .then(data => {
+        print();
+        console.log(data)
+    })
+}
+
+
+print();
+    </script>
+</body>
+</html>
